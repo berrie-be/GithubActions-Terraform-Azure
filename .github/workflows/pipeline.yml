@@ -38,7 +38,7 @@ jobs:
       run: |
         echo "STATE_RESOURCE_GROUP=practice-github-actions-terraform" >> $GITHUB_OUTPUT
         echo "STATE_STORAGE_ACCOUNT=githubactionsterraformm" >> $GITHUB_OUTPUT
-        echo "STATE_CONTANER_NAME=tfstate"
+        echo "STATE_CONTANER_NAME=tfstate" >> $GITHUB_OUTPUT
         if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
           echo "STATE_KEY=prod/terraform.tfstate" >> $GITHUB_ENV
           echo "VARFILE=prod.tfvars" >> $GITHUB_OUTPUT
