@@ -76,7 +76,7 @@ jobs:
       id: tf-plan
       run: |
         export exitcode=0
-        terraform plan -var-file=$VARFILE -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+        terraform plan -var-file=${{ steps.set_env.outputs.VARFILE }} -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
         
@@ -95,7 +95,7 @@ jobs:
     #     path: tfplan
 
     - name: Terraform Apply
-      run: terraform apply -var-file=$VARFILE -auto-approve tfplan
+      run: terraform apply -var-file=${{ steps.set_env.outputs.VARFILE }} -auto-approve tfplan
         
     # Create string output of Terraform Plan
   #   - name: Create String Output
