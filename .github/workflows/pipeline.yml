@@ -32,6 +32,20 @@ jobs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
+
+    - name: Set Environment
+      id: set_env
+      run: |
+        echo "STATE_RESOURCE_GROUP=practice-github-actions-terraform" >> $GITHUB_OUTPUT
+        echo "STATE_STORAGE_ACCOUNT=githubactionsterraformm" >> $GITHUB_OUTPUT
+        echo "STATE_CONTANER_NAME=tfstate"
+        if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          echo "STATE_KEY=prod/terraform.tfstate" >> $GITHUB_ENV
+          echo "VARFILE=prod.tfvars" >> $GITHUB_OUTPUT
+        else
+          echo "STATE_KEY=dev/terraform.tfstate" >> $GITHUB_ENV
+          echo "VARFILE=dev.tfvars" >> $GITHUB_OUTPUT
+        fi
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
@@ -44,7 +58,12 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init
+      run: |
+        terraform init \
+          -backend-config="resource_group_name=$STATE_RESOURCE_GROUP" \
+          -backend-config="storage_account_name=$STATE_STORAGE_ACCOUNT" \
+          -backend-config="container_name=$STATE_CONTANER_NAME" \
+          -backend-config="key=${STATE_KEY}"
 
     # Checks that all Terraform configuration files adhere to a canonical format
     # Will fail the build if not
@@ -57,7 +76,7 @@ jobs:
       id: tf-plan
       run: |
         export exitcode=0
-        terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+        terraform plan -var-file=$VARFILE -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
         
@@ -76,7 +95,7 @@ jobs:
     #     path: tfplan
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -var-file=$VARFILE -auto-approve tfplan
         
     # Create string output of Terraform Plan
   #   - name: Create String Output

@@ -6,14 +6,7 @@ terraform {
     }
   }
 
-  backend "azurerm" {
-    resource_group_name  = "practice-github-actions-terraform"
-    storage_account_name = "githubactionsterraformm"
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
-    use_oidc             = true
-    use_azuread_auth     = true
-  }
+  backend "azurerm" {}
 }
 
 provider "azurerm" {
